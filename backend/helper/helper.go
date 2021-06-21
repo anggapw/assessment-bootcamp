@@ -4,6 +4,8 @@ import (
 	"errors"
 	"math"
 	"strconv"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type Response struct {
@@ -15,6 +17,16 @@ type Meta struct {
 	Message string `json:"message"`
 	Code    int    `json:"code"`
 	Status  string `json:"status"`
+}
+
+func SplitErrorInformation(err error) []string {
+	var errors []string
+
+	for _, e := range err.(validator.ValidationErrors) {
+		errors = append(errors, e.Error())
+	}
+
+	return errors
 }
 
 func APIResponse(message string, code int, status string, data interface{}) Response {

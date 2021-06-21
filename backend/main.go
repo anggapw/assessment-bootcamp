@@ -1,6 +1,7 @@
 package main
 
 import (
+	"assessment/handler"
 	"assessment/routes"
 
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,8 @@ import (
 func main() {
 	r := gin.Default()
 
-	// ini routingan
+	r.Use(handler.CORSMiddleware())
+
 	routes.UserRoute(r)
 
 	r.Run()

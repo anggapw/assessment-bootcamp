@@ -25,7 +25,7 @@ function LoginPage() {
 
         if (!error) {
             dispatch(loginUser(data))
-            history.push("/dashboard")
+            history.push("/homepage")
         }
     }
 

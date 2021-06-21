@@ -41,7 +41,7 @@ func (r *repository) RRegisterUser(user entity.User) (entity.User, error) {
 	return user, nil
 }
 
-func (r *repository) FindUserByEmail(email string) (entity.User, error) {
+func (r *repository) RFindUserByEmail(email string) (entity.User, error) {
 	var user entity.User
 
 	err := r.db.Where("email = ?", email).Find(&user).Error

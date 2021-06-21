@@ -10,8 +10,8 @@ import (
 
 type Service interface {
 	SShowAllUser() ([]UserFormat, error)
-	SRegisterUser(user entity.User) (UserFormat, error)
-	SLoginUser(input entity.LoginUserInput) (UserFormat, error)
+	SRegisterUser(user entity.UserInput) (UserFormat, error)
+	SLoginUser(input entity.LoginUserInput) (entity.User, error)
 }
 
 type service struct {
@@ -38,7 +38,7 @@ func (s *service) SShowAllUser() ([]UserFormat, error) {
 	return formatUsers, nil
 }
 
-func (s *service) SRegisterUser(user entity.User) (UserFormat, error) {
+func (s *service) SRegisterUser(user entity.UserInput) (UserFormat, error) {
 	genPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
 
 	if err != nil {

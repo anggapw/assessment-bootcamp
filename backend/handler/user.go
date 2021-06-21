@@ -39,10 +39,54 @@ func (h *userHandler) RegisterUserHandler(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&inputUser); err != nil {
 
-		splitError := helper.SplitErrorInformation(err)
-		responseError := helper.APIResponse("input data required", 400, "bad request", gin.H{"errors": splitError})
+		responseError := helper.APIResponse("input data required", 400, "bad request", gin.H{"errors": err.Error()})
 
 		c.JSON(400, responseError)
 		return
 	}
+
+	newUser, err := h.userService.SRegisterUser(inputUser)
+	if err != nil {
+		responseError := helper.APIResponse("internal server error", 500, "error", gin.H{"errors": err.Error()})
+
+		c.JSON(500, responseError)
+		return
+	}
+	response := helper.APIResponse("success create new user", 201, "Status OK", newUser)
+	c.JSON(201, response)
+}
+
+// LOGIN USER
+func (h *userHandler) LoginUserHandler(c *gin.Context) {
+	var inputLoginUser entity.LoginUserInput
+
+	if err := c.ShouldBindJSON(&inputLoginUser); err != nil {
+
+		responseError := helper.APIResponse("input data required", 400, "bad request", gin.H{"errors": err.Error()})
+
+		c.JSON(400, responseError)
+		return
+	}
+
+	userData, err := h.userService.SLoginUser(inputLoginUser)
+
+	if err != nil {
+
+		responseError := helper.APIResponse("input data required", 401, "bad request", gin.H{"errors": err.Error()})
+
+		c.JSON(401, responseError)
+		return
+	}
+
+	token, err := h.authService.GenerateToken(userData.ID)
+
+	if err != nil {
+
+		responseError := helper.APIResponse("input data required", 500, "bad request", gin.H{"errors": err.Error()})
+
+		c.JSON(500, responseError)
+		return
+	}
+	response := helper.APIResponse("success login user", 200, "success", gin.H{"token": token})
+	c.JSON(200, response)
 }

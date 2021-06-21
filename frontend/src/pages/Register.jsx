@@ -51,7 +51,7 @@ function RegisterPage() {
                     e.preventDefault()
                     setEmail(e.target.value)
                 }}/>
-                <div id="emailHelp" className="form-text">We'll never share your email with anyone else.</div>
+                <div id="emailHelp" className="form-text">we will keep your email secure.</div>
             </div>
             <div class="mb-3">
                 <label for="password" className="form-label">Password</label>

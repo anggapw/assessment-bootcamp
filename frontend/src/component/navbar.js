@@ -46,8 +46,8 @@ const Navbar = () => {
                     ) : (
                         <div class="collapse navbar-collapse" id="navbarCollapse">
                             <ul class="navbar-nav me-auto mb-2 mb-md-0">
-                                <li class="nav-item" onClick={e => history.push("/dashboard")}>
-                                    <a class="nav-link active" aria-current="page">Dashboard</a>
+                                <li class="nav-item" onClick={e => history.push("/home")}>
+                                    <a class="nav-link active" aria-current="page">Home</a>
                                 </li>
                                 <li class="nav-item" onClick={logout}>
                                     <a class="nav-link active" aria-current="page" href="#">Logout</a>

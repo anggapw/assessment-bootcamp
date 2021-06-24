@@ -37,7 +37,7 @@ const Add = () => {
 					/>
 				</Form.Group>
 				<Form.Group controlId="formBasicCheckbox"></Form.Group>
-				<Button variant="primary" type="submit">
+				<Button variant="primary">
 					Submit
 				</Button>
 			</Form>

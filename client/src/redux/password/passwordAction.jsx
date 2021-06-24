@@ -21,21 +21,12 @@ const setPassword = (password) => {
 	}
 }
 
-const setWebPassword = () => async (dispatch) => {
-	try {
-		const getData = await passwordAPI({
-			method: 'GET',
-			url: '/passwords'
-		})
-
-		dispatch({
-			type: SET_WEB_PASSWORD,
-			payload: {
-				data: getData.data
-			}
-		})
-	} catch (err) {
-		console.log(err)
+const setWebPassword = (passwordData) => {
+	return {
+		type: SET_WEB_PASSWORD,
+		payload: {
+			data: passwordData
+		}
 	}
 }
 
@@ -43,21 +34,24 @@ const addNewPassword = (website, password, history) => async (dispatch) => {
 	try {
 		const data = {
 			website: website,
-			password: password
+			title: password
 		}
 
-		// eslint-disable-next-line
 		const postData = await passwordAPI({
 			method: 'POST',
 			url: '/password',
-			data: data
+			data: data,
+			headers: {
+				Authorization: localStorage.getItem('token')
+			}
+
 		})
 
 		if (postData.status === 200) {
-			Swal.fire({ title: 'Success', icon: 'success', timer: 1500 })
-
-			history.push('/dashboard')
+			Swal.fire({ title: 'Success Add New Password', icon: 'success', timer: 1500 })
 		}
+
+		history.push('/')
 	} catch (err) {
 		console.log(err.response)
 	}
@@ -68,7 +62,10 @@ const deletePassword = (id, history) => async (dispatch) => {
 		// eslint-disable-next-line
 		const postData = await passwordAPI({
 			method: 'DELETE',
-			url: `/password/${id}`
+			url: `/password/${id}`,
+			headers: {
+				Authorization: localStorage.getItem('token')
+			}
 		})
 
 		if (postData.status === 200) {

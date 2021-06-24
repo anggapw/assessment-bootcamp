@@ -51,17 +51,23 @@ const register = (email, password, fullName, address, history) => async (dispatc
 		// eslint-disable-next-line
 		const postData = await passwordAPI({
 			method: 'POST',
-			url: '/user',
+			url: '/users/register',
 			data: data
 		})
 
-		if (postData.status === 200) {
+		console.log(postData)
+
+		if (postData.status === 201) {
 			Swal.fire({ title: 'Register Success', icon: 'success', timer: 1500 })
 
 			history.push('/login')
 		}
 	} catch (err) {
 		console.log(err.response)
+
+		if (err.response.status === 500) {
+			Swal.fire({ title: 'Email sudah pernah didaftarkan', icon: 'warning', timer: 1500 })
+		}
 	}
 }
 

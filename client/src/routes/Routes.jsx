@@ -1,5 +1,8 @@
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 
+
+import PrivateRoute from './PrivateRoute'
+
 //components
 import NavbarMenu from '../components/NavbarMenu'
 
@@ -17,8 +20,12 @@ const Routes = () => {
 			<Switch>
 				<Route path="/login" component={Login} />
 				<Route path="/register" component={Register} />
-				<Route path="/dashboard" component={Dashboard} />
-				<Route path="/add" component={Add} />
+				<PrivateRoute path="/dashboard">
+					<Dashboard />
+				</PrivateRoute>
+				<PrivateRoute path="/add">
+					<Add />
+				</PrivateRoute>
 				<Route path="/" component={Homepage} />
 			</Switch>
 		</Router>

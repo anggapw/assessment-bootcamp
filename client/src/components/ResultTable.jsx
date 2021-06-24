@@ -11,9 +11,11 @@ const ResultTable = () => {
 	const history = useHistory()
 	const webPasswordData = useSelector((state) => state.webPassword)
 
-	useEffect(() => {
-		dispatch(passwordAction.setWebPassword())
-	}, [dispatch])
+	console.log(webPasswordData);
+
+	// useEffect(() => {
+	// 	dispatch(passwordAction.setWebPassword())
+	// }, [dispatch])
 
 	const handleClose = () => setShowModal(false)
 
@@ -74,7 +76,7 @@ const ResultTable = () => {
 						<th>Action</th>
 					</tr>
 				</thead>
-				{webPasswordData &&
+				{webPasswordData !== undefined &&
 					webPasswordData.map((value, index) => {
 						return (
 							<tbody>

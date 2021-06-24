@@ -1,83 +1,132 @@
 package handler
 
 import (
-	"log"
 	"net/http"
+	"password-app/auth"
 	"password-app/entity"
+	"password-app/layer/password"
 
 	"github.com/gin-gonic/gin"
 )
 
-func HandlePostPassword(c *gin.Context) {
-	var password entity.WebsitePassword
+type passwordHandler struct {
+	passwordService password.PasswordService
+	authService     auth.Service
+}
 
-	if err := c.ShouldBindJSON(&password); err != nil {
-		log.Println(err.Error())
+func NewPasswordhandler(passwordService password.PasswordService, authService auth.Service) *passwordHandler {
+	return &passwordHandler{passwordService, authService}
+}
+
+func (h *passwordHandler) CreatePasswordHandler(c *gin.Context) {
+	var inputPassword entity.CreateWebsitePassword
+
+	if err := c.ShouldBindJSON(&inputPassword); err != nil {
+		c.JSON(400, gin.H{
+			"error": "input data required",
+		})
 		return
 	}
 
-	if err := DB.Create(&password).Error; err != nil {
-		log.Println(err.Error())
+	userID := int(c.MustGet("currentUser").(int))
+
+	response, err := h.passwordService.CreateNewPassword(userID, inputPassword)
+
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
+
+	c.JSON(201, response)
+}
+
+func (h *passwordHandler) GetAllPasswordhandler(c *gin.Context) {
+	password, err := h.passwordService.GetAllPassword()
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, password)
 
 }
 
-func HandleGetPassword(c *gin.Context) {
-	var passwords []entity.WebsitePassword
+func (h *passwordHandler) ShowPasswordByIDhandler(c *gin.Context) {
+	id := c.Param("id")
 
-	if err := DB.Find(&passwords).Error; err != nil {
-		log.Println(err.Error())
-	}
-
-	c.JSON(http.StatusOK, passwords)
-}
-
-func HandleGetPasswordByID(c *gin.Context) {
-	var password entity.WebsitePassword
-
-	id := c.Params.ByName("id")
-
-	if err := DB.Where("id = ?", id).Find(&password).Error; err != nil {
-		log.Println(err.Error())
+	password, err := h.passwordService.GetPasswordByID(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
 	}
 
 	c.JSON(http.StatusOK, password)
 }
 
-func HandleDeletePassword(c *gin.Context) {
-	id := c.Params.ByName("id")
+func (h *passwordHandler) UpdatePasswordByIDHandler(c *gin.Context) {
+	id := c.Param("id")
 
-	if err := DB.Where("id ' ?", id).Delete(&entity.WebsitePassword{}).Error; err != nil {
-		log.Println(err.Error())
+	var updatePasswordInput entity.CreateWebsitePassword
+
+	if err := c.ShouldBindJSON(&updatePasswordInput); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"errors": err.Error(),
+		})
+		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"id":      id,
-		"message": "delete password succesfully",
-	})
+	password, err := h.passwordService.UpdatePasswordByID(id, updatePasswordInput)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
+	idParam := int(password.UserID)
+
+	userData := int(c.MustGet("currentUser").(int))
+
+	if idParam != userData {
+		c.JSON(401, gin.H{
+			"error": "unauthorize user",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, password)
 }
 
-func HandleUpdatePassword(c *gin.Context) {
-	var password entity.WebsitePassword
-	var passwordUpdate entity.UpdateWebsitePassword
+func (h *passwordHandler) DeleteByPasswordIDHandler(c *gin.Context) {
+	id := c.Param("id")
 
-	id := c.Params.ByName("id")
-	DB.Where("id = ?", id).Find(&password)
+	password, _ := h.passwordService.GetPasswordByID(id)
 
-	if err := c.ShouldBindJSON(&passwordUpdate); err != nil {
-		log.Println(err.Error())
+	idParam := int(password.UserID)
+
+	userData := int(c.MustGet("currentUser").(int))
+
+	if idParam != userData {
+		c.JSON(401, gin.H{
+			"error": "unauthorize user",
+		})
 		return
 	}
 
-	password.Website = passwordUpdate.Website
-	password.Title = passwordUpdate.Title
-
-	if err := DB.Where("id = ?", id).Save(&password).Error; err != nil {
-		log.Println(err.Error())
+	book, err := h.passwordService.DeletePasswordByID(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
-	c.JSON(http.StatusOK, password)
+
+	c.JSON(http.StatusOK, book)
 }
